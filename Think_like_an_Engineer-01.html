@@ -1,0 +1,2119 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Think Like an Engineer — Using ISO 9001 Principles</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-light: #2563eb;
+            --primary-dim: #f0f5ff;
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --accent-gold: #d97706;
+            
+            --success-bg: #f0fdf4;
+            --success-border: #bbf7d0;
+            --success-text: #166534;
+            
+            --danger-bg: #fef2f2;
+            --danger-border: #fee2e2;
+            --danger-text: #991b1b;
+            
+            --sidebar-width: 300px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --transition-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'IBM Plex Sans Arabic', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            line-height: 1.7;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Sidebar UX Polish */
+        aside {
+            width: var(--sidebar-width);
+            background-color: #0f172a;
+            color: #f1f5f9;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s var(--transition-smooth);
+            border-left: 1px solid #1e293b;
+        }
+
+        .sidebar-brand {
+            padding: 32px 24px;
+            background-color: #0b1222;
+            font-weight: 700;
+            font-size: 1.2rem;
+            border-bottom: 1px solid #1e293b;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .sidebar-brand span.sub {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem;
+            color: #64748b;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            overflow-y: auto;
+            padding: 24px 12px;
+            flex-grow: 1;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 6px;
+        }
+
+        .sidebar-menu a {
+            display: block;
+            padding: 12px 16px;
+            color: #94a3b8;
+            text-decoration: none;
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.2s var(--transition-smooth);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background-color: var(--primary);
+            color: #ffffff;
+            transform: translateX(-4px);
+        }
+
+        /* Main Structural Polish */
+        main {
+            margin-right: var(--sidebar-width);
+            flex-grow: 1;
+            padding: 48px 56px;
+            max-width: 1200px;
+            transition: margin-right 0.3s var(--transition-smooth);
+        }
+
+        /* Top Bar Interface */
+        .top-bar {
+            background-color: var(--bg-card);
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius-lg);
+            padding: 16px 24px;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            position: sticky;
+            top: 24px;
+            z-index: 90;
+        }
+
+        .search-container {
+            position: relative;
+            flex-grow: 1;
+            max-width: 480px;
+        }
+
+        .search-container input {
+            width: 100%;
+            padding: 12px 44px 12px 16px;
+            border: 1px solid #cbd5e1;
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            font-family: inherit;
+            outline: none;
+            background-color: #f8fafc;
+            transition: all 0.2s ease;
+        }
+
+        .search-container input:focus {
+            border-color: var(--primary-light);
+            background-color: var(--bg-card);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: 1px solid #cbd5e1;
+            padding: 12px 18px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-main);
+            transition: background 0.2s;
+        }
+
+        .toggle-btn:hover {
+            background-color: #f1f5f9;
+        }
+
+        /* Premium Dashboard Hero Cover */
+        .hero-section {
+            background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
+            color: #ffffff;
+            border-radius: var(--radius-lg);
+            padding: 56px;
+            margin-bottom: 48px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+        }
+
+        .hero-section h1 {
+            font-size: 2.4rem;
+            font-weight: 700;
+            margin-top: 16px;
+            margin-bottom: 16px;
+            line-height: 1.3;
+        }
+
+        .hero-section p {
+            font-size: 1.1rem;
+            color: #cbd5e1;
+            max-width: 800px;
+            font-weight: 300;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background-color: var(--accent-gold);
+            color: #ffffff;
+            font-weight: 600;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        /* Technical Handbook Section & Typography Polish */
+        .chapter-card {
+            background-color: var(--bg-card);
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.01);
+            scroll-margin-top: 110px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .chapter-card:hover {
+            box-shadow: 0 12px 24px rgba(0,0,0,0.02);
+        }
+
+        .chapter-header {
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+
+        .chapter-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .chapter-intro {
+            font-size: 1.1rem;
+            color: #334155;
+            margin-bottom: 28px;
+            font-weight: 400;
+        }
+
+        /* SVG Flowcharts Layout - Eliminating Cognitive Load */
+        .flow-container {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius-md);
+            padding: 24px;
+            margin: 32px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .flow-step {
+            background-color: #ffffff;
+            border: 1px solid #cbd5e1;
+            padding: 12px 20px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--primary);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.01);
+            text-align: center;
+            flex: 1;
+            min-width: 200px;
+            max-width: 280px;
+        }
+
+        .flow-arrow {
+            color: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse-arrow 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse-arrow {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(-4px); }
+        }
+
+        /* Premium Reference Tables */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            margin: 32px 0;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius-md);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.01);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: right;
+        }
+
+        th {
+            background-color: #f8fafc;
+            color: var(--primary);
+            font-weight: 600;
+            padding: 16px 20px;
+            font-size: 0.95rem;
+            border-bottom: 2px solid #e2e8f0;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 16px 20px;
+            font-size: 0.95rem;
+            border-bottom: 1px solid #e2e8f0;
+            color: var(--text-main);
+            vertical-align: top;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr {
+            transition: background-color 0.15s ease;
+        }
+
+        tr:hover {
+            background-color: #f8fafc;
+        }
+
+        /* Technical Highlight Containers */
+        .mistake-box {
+            background-color: var(--danger-bg);
+            border: 1px solid var(--danger-border);
+            border-right: 5px solid var(--danger-text);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            margin: 32px 0;
+        }
+
+        .mistake-box h4 {
+            color: var(--danger-text);
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mistake-box ul {
+            padding-right: 24px;
+            list-style-type: square;
+        }
+
+        .mistake-box li {
+            margin-bottom: 8px;
+            color: #450a0a;
+        }
+
+        .mindset-box {
+            background-color: var(--success-bg);
+            border: 1px solid var(--success-border);
+            border-right: 5px solid var(--success-text);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            margin: 32px 0;
+        }
+
+        .mindset-box h4 {
+            color: var(--success-text);
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mindset-box ol {
+            padding-right: 24px;
+        }
+
+        .mindset-box li {
+            margin-bottom: 8px;
+            color: #042f1a;
+        }
+
+        /* Bilingual Typography Harmony */
+        .lang-en {
+            direction: ltr;
+            display: inline-block;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            color: var(--primary-light);
+            background-color: var(--primary-dim);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .appendix-section {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius-md);
+            padding: 28px;
+            margin-top: 24px;
+        }
+
+        .appendix-section h3 {
+            color: var(--primary);
+            margin-bottom: 16px;
+            font-size: 1.2rem;
+            border-right: 3px solid var(--accent-gold);
+            padding-right: 10px;
+        }
+
+        /* Responsive Breakpoints UX Polish */
+        @media (max-width: 1150px) {
+            aside {
+                transform: translateX(100%);
+                box-shadow: none;
+            }
+            aside.open {
+                transform: translateX(0);
+                box-shadow: -10px 0 30px rgba(15, 23, 42, 0.15);
+            }
+            main {
+                margin-right: 0;
+                padding: 32px 24px;
+            }
+            .toggle-btn {
+                display: flex;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .flow-container {
+                flex-direction: column;
+            }
+            .flow-arrow {
+                transform: rotate(90deg);
+                animation: pulse-arrow-vertical 2s infinite ease-in-out;
+            }
+            .hero-section {
+                padding: 32px 24px;
+            }
+            .hero-section h1 {
+                font-size: 1.8rem;
+            }
+        }
+
+        @keyframes pulse-arrow-vertical {
+            0%, 100% { transform: rotate(90deg) translateX(0); }
+            50% { transform: rotate(90deg) translateX(4px); }
+        }
+
+        .hidden-item {
+            display: none !important;
+        }
+
+        /* ============================= */
+        /* Intro / Guide-About Components */
+        /* ============================= */
+
+        .sidebar-section-label {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.8px;
+            color: #475569;
+            padding: 10px 16px 6px;
+            text-transform: uppercase;
+        }
+
+        .sidebar-divider {
+            height: 1px;
+            background-color: #1e293b;
+            margin: 10px 12px 14px;
+        }
+
+        .intro-lead {
+            font-size: 1.08rem;
+            color: #334155;
+            margin-bottom: 18px;
+        }
+
+        .intro-lead:last-of-type {
+            margin-bottom: 0;
+        }
+
+        /* Convergence visual: many concepts -> one practical understanding */
+        .convergence-visual {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius-md);
+            padding: 28px 24px;
+            margin: 32px 0 8px;
+            flex-wrap: wrap;
+        }
+
+        .convergence-chips {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .convergence-chip {
+            background-color: #ffffff;
+            border: 1px solid #cbd5e1;
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            font-weight: 500;
+            padding: 6px 14px;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+
+        .convergence-arrow {
+            color: var(--primary-light);
+            flex-shrink: 0;
+        }
+
+        .convergence-result {
+            background-color: var(--primary);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.98rem;
+            padding: 14px 24px;
+            border-radius: var(--radius-md);
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(30, 58, 138, 0.15);
+        }
+
+        @media (max-width: 768px) {
+            .convergence-visual {
+                flex-direction: column;
+            }
+            .convergence-arrow {
+                transform: rotate(90deg);
+            }
+        }
+
+        /* Audit journey timeline */
+        .audit-timeline {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 4px;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius-md);
+            padding: 32px 20px 24px;
+            margin: 32px 0;
+            position: relative;
+            flex-wrap: wrap;
+            counter-reset: audit-step;
+        }
+
+        .audit-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            flex: 1;
+            min-width: 100px;
+            position: relative;
+            padding: 0 4px;
+        }
+
+        .audit-step::before {
+            counter-increment: audit-step;
+            content: counter(audit-step);
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 6px rgba(30, 58, 138, 0.2);
+            position: relative;
+            z-index: 2;
+        }
+
+        .audit-step:last-child::before {
+            background-color: var(--accent-gold);
+            box-shadow: 0 2px 6px rgba(217, 119, 6, 0.25);
+        }
+
+        .audit-step .step-label-ar {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--text-main);
+            margin-bottom: 2px;
+        }
+
+        .audit-step .step-label-en {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+        }
+
+        .audit-timeline-line {
+            position: absolute;
+            top: 49px;
+            right: 8%;
+            left: 8%;
+            height: 2px;
+            background-color: #cbd5e1;
+            z-index: 1;
+        }
+
+        @media (max-width: 900px) {
+            .audit-timeline-line { display: none; }
+            .audit-timeline { justify-content: flex-start; }
+            .audit-step { min-width: 130px; }
+        }
+
+        /* Relationship / interconnection diagram (SVG) */
+        .relationship-diagram {
+            display: flex;
+            justify-content: center;
+            margin: 32px 0 8px;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius-md);
+            padding: 16px;
+        }
+
+        .relationship-diagram svg {
+            width: 100%;
+            height: auto;
+            max-width: 620px;
+        }
+
+        /* Roadmap grid for the 8 focus areas */
+        .roadmap-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin: 28px 0 8px;
+        }
+
+        .roadmap-card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-right: 4px solid var(--primary-light);
+            border-radius: var(--radius-md);
+            padding: 18px 20px;
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            transition: box-shadow 0.2s ease, transform 0.2s ease;
+        }
+
+        .roadmap-card:hover {
+            box-shadow: 0 6px 16px rgba(0,0,0,0.04);
+            transform: translateY(-2px);
+        }
+
+        .roadmap-card:nth-child(8) {
+            border-right-color: var(--accent-gold);
+            grid-column: span 2;
+        }
+
+        .roadmap-num {
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: var(--primary-light);
+            flex-shrink: 0;
+            min-width: 38px;
+        }
+
+        .roadmap-card:nth-child(8) .roadmap-num {
+            color: var(--accent-gold);
+        }
+
+        .roadmap-title {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+
+        .roadmap-desc {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+        }
+
+        @media (max-width: 768px) {
+            .roadmap-grid {
+                grid-template-columns: 1fr;
+            }
+            .roadmap-card:nth-child(8) {
+                grid-column: span 1;
+            }
+        }
+
+        /* Usage paths */
+        .usage-paths {
+            display: flex;
+            gap: 16px;
+            margin: 28px 0 8px;
+            flex-wrap: wrap;
+        }
+
+        .usage-path {
+            flex: 1;
+            min-width: 200px;
+            background-color: var(--primary-dim);
+            border: 1px solid #dbe6fb;
+            border-radius: var(--radius-md);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .usage-path-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+        }
+
+        .usage-path-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--primary);
+            margin-bottom: 6px;
+        }
+
+        .usage-path-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* ============================= */
+        /* Chapter 1 — Process Chain & Lens */
+        /* ============================= */
+
+        .process-chain {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 28px 0 8px;
+        }
+
+        .process-chain-node {
+            background-color: var(--primary);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.95rem;
+            padding: 13px 26px;
+            border-radius: var(--radius-md);
+            box-shadow: 0 4px 10px rgba(30, 58, 138, 0.15);
+            text-align: center;
+            min-width: 220px;
+        }
+
+        .process-chain-node.final {
+            background-color: var(--accent-gold);
+            box-shadow: 0 4px 10px rgba(217, 119, 6, 0.2);
+        }
+
+        .process-chain-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            padding: 4px 0;
+            min-height: 56px;
+            justify-content: center;
+        }
+
+        .process-chain-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            background-color: #cbd5e1;
+            z-index: 0;
+        }
+
+        .process-chain-tag {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.4px;
+            color: var(--text-muted);
+            margin-bottom: 3px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .process-chain-artifact {
+            background-color: #ffffff;
+            border: 1.5px dashed var(--primary-light);
+            color: var(--primary);
+            font-size: 0.82rem;
+            font-weight: 600;
+            padding: 6px 16px;
+            border-radius: 20px;
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+
+        .process-lens-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin: 24px 0 8px;
+        }
+
+        .process-lens-card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-top: 3px solid var(--primary-light);
+            border-radius: var(--radius-md);
+            padding: 16px 18px;
+        }
+
+        .process-lens-num {
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: var(--primary-light);
+            margin-bottom: 6px;
+        }
+
+        .process-lens-question {
+            font-weight: 700;
+            font-size: 0.92rem;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+
+        .process-lens-desc {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+        }
+
+        @media (max-width: 900px) {
+            .process-lens-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .process-lens-grid {
+                grid-template-columns: 1fr;
+            }
+            .process-chain-node {
+                min-width: 0;
+                width: 100%;
+            }
+        }
+
+        /* ============================= */
+        /* Chapter 5 — NCR Writing Framework */
+        /* ============================= */
+
+        .ncr-framework {
+            display: flex;
+            flex-direction: column;
+            margin: 28px 0 8px;
+        }
+
+        .ncr-step {
+            display: flex;
+            gap: 16px;
+        }
+
+        .ncr-step-track {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .ncr-step-marker {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+            color: #ffffff;
+            flex-shrink: 0;
+        }
+
+        .ncr-step:nth-child(1) .ncr-step-marker { background-color: var(--primary); }
+        .ncr-step:nth-child(2) .ncr-step-marker { background-color: var(--accent-gold); }
+        .ncr-step:nth-child(3) .ncr-step-marker { background-color: var(--danger-text); }
+
+        .ncr-step-line {
+            width: 2px;
+            flex-grow: 1;
+            min-height: 22px;
+            background-color: #cbd5e1;
+            margin-top: 4px;
+        }
+
+        .ncr-step-content {
+            padding-bottom: 22px;
+            padding-top: 6px;
+        }
+
+        .ncr-step-title {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--text-main);
+            margin-bottom: 3px;
+        }
+
+        .ncr-step-desc {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+        }
+
+        .ncr-example {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 8px 0 24px;
+        }
+
+        .ncr-example-card {
+            border-radius: var(--radius-md);
+            padding: 14px 18px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .ncr-example-card.req { border-right: 4px solid var(--primary); background-color: var(--primary-dim); }
+        .ncr-example-card.evi { border-right: 4px solid var(--accent-gold); background-color: #fffaf0; }
+        .ncr-example-card.non { border-right: 4px solid var(--danger-text); background-color: var(--danger-bg); }
+
+        .ncr-example-label {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .ncr-example-card.req .ncr-example-label { color: var(--primary); }
+        .ncr-example-card.evi .ncr-example-label { color: #92400e; }
+        .ncr-example-card.non .ncr-example-label { color: var(--danger-text); }
+
+        .ncr-example-text {
+            font-size: 0.92rem;
+            color: var(--text-main);
+        }
+
+        .ncr-quality-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .ncr-badge {
+            background-color: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 20px;
+            padding: 7px 16px;
+            font-size: 0.85rem;
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        .ncr-badge span.lang-en {
+            margin-left: 4px;
+        }
+
+        /* ============================= */
+        /* Chapter 6 — Audit Depth Funnel */
+        /* ============================= */
+
+        .audit-depth {
+            display: flex;
+            flex-direction: column;
+            margin: 28px auto 8px;
+            max-width: 560px;
+        }
+
+        .audit-depth-level {
+            border-radius: var(--radius-md);
+            padding: 18px 26px;
+            text-align: center;
+        }
+
+        .audit-depth-level:nth-child(1) {
+            background-color: var(--primary-dim);
+            border: 1px solid #dbe6fb;
+            color: var(--primary);
+        }
+
+        .audit-depth-level:nth-child(3) {
+            background-color: #bfdbfe;
+            color: #1e3a8a;
+            width: 92%;
+            margin: 0 auto;
+        }
+
+        .audit-depth-level:nth-child(5) {
+            background-color: var(--primary);
+            color: #ffffff;
+            width: 84%;
+            margin: 0 auto;
+            box-shadow: 0 6px 16px rgba(30, 58, 138, 0.2);
+        }
+
+        .audit-depth-arrow {
+            text-align: center;
+            color: var(--primary-light);
+            margin: 2px 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .audit-depth-title {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+
+        .audit-depth-title .lang-en {
+            background-color: rgba(255,255,255,0.35);
+            color: inherit;
+        }
+
+        .audit-depth-level:nth-child(1) .audit-depth-title .lang-en {
+            background-color: rgba(37, 99, 235, 0.12);
+            color: var(--primary);
+        }
+
+        .audit-depth-desc {
+            font-size: 0.85rem;
+            opacity: 0.92;
+        }
+
+        @media (max-width: 600px) {
+            .audit-depth-level:nth-child(3),
+            .audit-depth-level:nth-child(5) {
+                width: 100%;
+            }
+        }
+
+        /* Print CSS Optimization to PDF Blueprint */
+        @media print {
+            aside, .top-bar, .toggle-btn {
+                display: none !important;
+            }
+            main {
+                margin-right: 0 !important;
+                padding: 0 !important;
+                max-width: 100% !important;
+            }
+            .chapter-card {
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+                margin-bottom: 0 !important;
+                page-break-after: always;
+            }
+            .chapter-card:last-child {
+                page-break-after: avoid;
+            }
+            th {
+                background-color: #f1f5f9 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .mistake-box, .mindset-box {
+                page-break-inside: avoid;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .audit-timeline, .roadmap-grid, .usage-paths, .convergence-visual, .relationship-diagram {
+                page-break-inside: avoid;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <aside id="sidebar">
+        <div class="sidebar-brand">
+            <span>عقلية التفكير الهندسي</span>
+            <span class="sub">Think Like an Engineer</span>
+<span class="sub">Prepared by Ammar Mahlawi
+<a href="https://www.linkedin.com/in/ammar-mahlawi-409a8a257" target="_blank" style="color: #2563eb; text-decoration: underline; font-weight: 500;">
+LinkedIn:Ammar Mahlawi</a>
+Mail:Amar.936@outlook.com</span>
+        </div>
+        <ul class="sidebar-menu">
+            <li class="sidebar-section-label">المقدمة</li>
+            <li><a href="#intro-about" class="menu-link active">عن هذا الدليل</a></li>
+            <li><a href="#intro-lead-auditor" class="menu-link">ما هي Lead Auditor؟</a></li>
+            <li><a href="#intro-why" class="menu-link">لماذا هذا الملخص؟</a></li>
+            <li><a href="#intro-contents" class="menu-link">محتويات الدليل</a></li>
+            <li><a href="#intro-how-to-use" class="menu-link">كيف تستخدم الدليل؟</a></li>
+            <div class="sidebar-divider"></div>
+            <li class="sidebar-section-label">الفصول</li>
+            <li><a href="#ch1" class="menu-link">الفصل 1: هيكلة العمليات</a></li>
+            <li><a href="#ch2" class="menu-link">الفصل 2: التفكير بالمخاطر</a></li>
+            <li><a href="#ch3" class="menu-link">الفصل 3: مؤشرات الأداء</a></li>
+            <li><a href="#ch4" class="menu-link">الفصل 4: الأسباب الجذرية</a></li>
+            <li><a href="#ch5" class="menu-link">الفصل 5: حالات عدم المطابقة</a></li>
+            <li><a href="#ch6" class="menu-link">الفصل 6: التدقيق الداخلي</a></li>
+            <li><a href="#ch7" class="menu-link">الفصل 7: ترس دورة PDCA</a></li>
+            <li><a href="#ch8" class="menu-link">الفصل 8: الإطار السداسي الموحد</a></li>
+            <li><a href="#appendices" class="menu-link">الملاحق التطبيقية وجداول الجيب</a></li>
+        </ul>
+    </aside>
+
+    <main>
+        <div class="top-bar">
+            <button class="toggle-btn" id="toggleSidebar">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                <span>القائمة</span>
+            </button>
+            <div class="search-container">
+                <span class="search-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </span>
+                <input type="text" id="searchInput" placeholder="ابحث عن أداة، فصل، أو كلمة مفتاحية بالموقع...">
+            </div>
+        </div>
+
+        <div class="hero-section">
+            <h1>دليل التحكم والسيطرة الهندسي</h1>
+            <p>صياغة تشغيلية رشيقة للمشاريع باستخدام مبادئ <span style="color:#ffffff; font-weight:600;">ISO 9001</span> دون حشو نظري. العقلية الهندسية ضد لغة الآلة — دليل مدمج ومطور لاتخاذ القرار الفوري في الموقع.</p>
+
+<span class="sub">Prepared by Ammar Mahlawi</span>
+</div>
+
+        <section class="chapter-card" id="intro-about">
+            <div class="chapter-header">
+                <div class="chapter-title">مقدمة | عن هذا الدليل</div>
+            </div>
+            <p class="intro-lead">بعد إتمام دورة <span class="lang-en">ISO 9001:2015 Lead Auditor</span>، وجدت أن محتوى الدورة يحتوي على عدد كبير من المفاهيم والممارسات المرتبطة بنظام إدارة الجودة والتدقيق.</p>
+            <p class="intro-lead">ولكن مع كثرة المعلومات، رأيت أن بعض المفاهيم الأساسية يمكن جمعها وربطها بطريقة أبسط وأكثر عملية، بحيث لا تكون مجرد معلومات تُحفظ، بل أدوات يمكن فهمها واستخدامها في بيئة العمل.</p>
+            <p class="intro-lead">لذلك تم إعداد هذا الملخص بهدف تقديم أهم المفاهيم التي تم تناولها خلال رحلة التعلم بصورة مختصرة، مترابطة وعملية، مع التركيز على كيفية فهم النظام وتطبيق طريقة التفكير المرتبطة بالجودة، العمليات، المخاطر، الأداء، عدم المطابقة والتحسين.</p>
+
+            <div class="convergence-visual">
+                <div class="convergence-chips">
+                    <span class="convergence-chip">بنود المعيار</span>
+                    <span class="convergence-chip">أدوات التدقيق</span>
+                    <span class="convergence-chip">مفاهيم الجودة</span>
+                </div>
+                <div class="convergence-arrow">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                </div>
+                <div class="convergence-result">فهم عملي مترابط<br><span class="lang-en" style="background-color:rgba(255,255,255,0.15); color:#ffffff;">Practical Mindset</span></div>
+            </div>
+        </section>
+
+        <section class="chapter-card" id="intro-lead-auditor">
+            <div class="chapter-header">
+                <div class="chapter-title">ما هي <span class="lang-en">ISO 9001 Lead Auditor</span>؟</div>
+            </div>
+            <p class="chapter-intro">دورة <span class="lang-en">ISO 9001 Lead Auditor</span> لا تقتصر على معرفة بنود معيار <span class="lang-en">ISO 9001</span> فقط. بل تساعد على فهم كيفية:</p>
+
+            <div class="mindset-box">
+                <ol>
+                    <li>فهم وتقييم نظام إدارة الجودة <span class="lang-en">Quality Management System – QMS</span>.</li>
+                    <li>تفسير متطلبات معيار <span class="lang-en">ISO 9001:2015</span>.</li>
+                    <li>فهم منهجية العمليات <span class="lang-en">Process Approach</span>.</li>
+                    <li>التفكير المبني على المخاطر <span class="lang-en">Risk-Based Thinking</span>.</li>
+                    <li>التخطيط للتدقيق وإعداده.</li>
+                    <li>جمع وتقييم الأدلة الموضوعية <span class="lang-en">Objective Evidence</span>.</li>
+                    <li>تحديد وتسجيل حالات عدم المطابقة <span class="lang-en">Nonconformities</span>.</li>
+                    <li>إعداد نتائج وتقارير التدقيق.</li>
+                    <li>متابعة الإجراءات التصحيحية والتحقق من فعاليتها.</li>
+                </ol>
+            </div>
+
+            <p class="intro-lead" style="margin-top: 20px;">كما تتناول الدورة دور ومسؤوليات كل من <span class="lang-en">Auditor</span> و <span class="lang-en">Lead Auditor</span> أثناء عملية التدقيق، بدءًا من التخطيط وحتى إصدار النتائج والمتابعة.</p>
+
+            <h3 style="margin: 28px 0 4px 0; color: var(--primary); font-size: 1.1rem;">رحلة عملية التدقيق</h3>
+            <div class="audit-timeline">
+                <div class="audit-timeline-line"></div>
+                <div class="audit-step"><span class="step-label-ar">التخطيط</span><span class="step-label-en">Planning</span></div>
+                <div class="audit-step"><span class="step-label-ar">الإعداد</span><span class="step-label-en">Preparation</span></div>
+                <div class="audit-step"><span class="step-label-ar">تنفيذ التدقيق</span><span class="step-label-en">Conducting</span></div>
+                <div class="audit-step"><span class="step-label-ar">جمع الأدلة</span><span class="step-label-en">Evidence</span></div>
+                <div class="audit-step"><span class="step-label-ar">النتائج</span><span class="step-label-en">Findings</span></div>
+                <div class="audit-step"><span class="step-label-ar">التقرير</span><span class="step-label-en">Reporting</span></div>
+                <div class="audit-step"><span class="step-label-ar">الإجراء التصحيحي</span><span class="step-label-en">Corrective Action</span></div>
+                <div class="audit-step"><span class="step-label-ar">المتابعة</span><span class="step-label-en">Follow-up</span></div>
+            </div>
+        </section>
+
+        <section class="chapter-card" id="intro-why">
+            <div class="chapter-header">
+                <div class="chapter-title">لماذا هذا الملخص؟</div>
+            </div>
+            <p class="intro-lead">هذا الملف ليس نسخة مختصرة من الدورة كاملة، كما أنه لا يهدف إلى استبدال التدريب الرسمي أو المراجع والمعايير الأصلية.</p>
+            <p class="intro-lead"><strong>الهدف منه هو:</strong> جمع وربط أهم المفاهيم العملية بطريقة تساعد على فهم الصورة بشكل أوضح وتحويل المعرفة إلى طريقة تفكير يمكن استخدامها في بيئة العمل.</p>
+            <p class="intro-lead">ولهذا السبب تم التركيز على مجموعة من المحاور التي ترتبط ببعضها بشكل مباشر:</p>
+
+            <div class="relationship-diagram">
+                <svg viewBox="0 0 620 380" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <marker id="rdArrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                            <path d="M0,0 L6,3 L0,6 Z" fill="#2563eb"></path>
+                        </marker>
+                    </defs>
+                    <!-- connecting circle path between 7 nodes -->
+                    <polygon points="310,40 500,120 460,290 160,290 120,120" fill="none" stroke="#cbd5e1" stroke-width="2"></polygon>
+                    <line x1="310" y1="40" x2="500" y2="120" stroke="#2563eb" stroke-width="2" marker-end="url(#rdArrow)"></line>
+                    <line x1="500" y1="120" x2="460" y2="290" stroke="#2563eb" stroke-width="2" marker-end="url(#rdArrow)"></line>
+                    <line x1="460" y1="290" x2="160" y2="290" stroke="#2563eb" stroke-width="2" marker-end="url(#rdArrow)"></line>
+                    <line x1="160" y1="290" x2="120" y2="120" stroke="#2563eb" stroke-width="2" marker-end="url(#rdArrow)"></line>
+                    <line x1="120" y1="120" x2="310" y2="40" stroke="#2563eb" stroke-width="2" marker-end="url(#rdArrow)"></line>
+
+                    <!-- center label -->
+                    <circle cx="310" cy="165" r="48" fill="#1e3a8a"></circle>
+                    <text x="310" y="160" text-anchor="middle" fill="#ffffff" font-family="IBM Plex Sans Arabic, sans-serif" font-size="15" font-weight="700">التحسين</text>
+                    <text x="310" y="180" text-anchor="middle" fill="#cbd5e1" font-family="Inter, sans-serif" font-size="10">Continuous</text>
+
+                    <!-- 5 outer nodes -->
+                    <circle cx="310" cy="40" r="42" fill="#ffffff" stroke="#2563eb" stroke-width="2"></circle>
+                    <text x="310" y="36" text-anchor="middle" fill="#1e3a8a" font-family="IBM Plex Sans Arabic, sans-serif" font-size="13" font-weight="700">العمليات</text>
+                    <text x="310" y="52" text-anchor="middle" fill="#475569" font-family="Inter, sans-serif" font-size="9">Process</text>
+
+                    <circle cx="500" cy="120" r="42" fill="#ffffff" stroke="#2563eb" stroke-width="2"></circle>
+                    <text x="500" y="116" text-anchor="middle" fill="#1e3a8a" font-family="IBM Plex Sans Arabic, sans-serif" font-size="13" font-weight="700">المخاطر</text>
+                    <text x="500" y="132" text-anchor="middle" fill="#475569" font-family="Inter, sans-serif" font-size="9">Risk</text>
+
+                    <circle cx="460" cy="290" r="42" fill="#ffffff" stroke="#2563eb" stroke-width="2"></circle>
+                    <text x="460" y="280" text-anchor="middle" fill="#1e3a8a" font-family="IBM Plex Sans Arabic, sans-serif" font-size="13" font-weight="700">الأداء</text>
+                    <text x="460" y="296" text-anchor="middle" fill="#475569" font-family="Inter, sans-serif" font-size="9">KPIs</text>
+                    <text x="460" y="308" text-anchor="middle" fill="#475569" font-family="IBM Plex Sans Arabic, sans-serif" font-size="10">والمشكلات</text>
+
+                    <circle cx="160" cy="290" r="42" fill="#ffffff" stroke="#2563eb" stroke-width="2"></circle>
+                    <text x="160" y="280" text-anchor="middle" fill="#1e3a8a" font-family="IBM Plex Sans Arabic, sans-serif" font-size="13" font-weight="700">الأسباب</text>
+                    <text x="160" y="296" text-anchor="middle" fill="#475569" font-family="Inter, sans-serif" font-size="9">Root Cause</text>
+                    <text x="160" y="308" text-anchor="middle" fill="#475569" font-family="IBM Plex Sans Arabic, sans-serif" font-size="10">الجذرية</text>
+
+                    <circle cx="120" cy="120" r="42" fill="#ffffff" stroke="#2563eb" stroke-width="2"></circle>
+                    <text x="120" y="116" text-anchor="middle" fill="#1e3a8a" font-family="IBM Plex Sans Arabic, sans-serif" font-size="13" font-weight="700">التدقيق</text>
+                    <text x="120" y="132" text-anchor="middle" fill="#475569" font-family="Inter, sans-serif" font-size="9">Audit</text>
+                </svg>
+            </div>
+            <p style="text-align:center; color: var(--text-muted); font-size: 0.88rem; margin-top: 4px;">العمليات ← المخاطر ← الأداء ← المشكلات والأسباب الجذرية ← التحسين ← التدقيق، وتعود الدورة لتغذّي العمليات من جديد</p>
+        </section>
+
+        <section class="chapter-card" id="intro-contents">
+            <div class="chapter-header">
+                <div class="chapter-title">ماذا ستجد في هذا الدليل؟</div>
+            </div>
+            <p class="chapter-intro">تم تنظيم الملخص حول المحاور التالية:</p>
+
+            <div class="roadmap-grid">
+                <div class="roadmap-card">
+                    <span class="roadmap-num">01</span>
+                    <div>
+                        <div class="roadmap-title">Process Approach</div>
+                        <div class="roadmap-desc">فهم العمليات والعلاقة بين المدخلات والمخرجات والمسؤوليات والنتائج.</div>
+                    </div>
+                </div>
+                <div class="roadmap-card">
+                    <span class="roadmap-num">02</span>
+                    <div>
+                        <div class="roadmap-title">Risk-Based Thinking</div>
+                        <div class="roadmap-desc">فهم المخاطر والفرص وكيفية التعامل معها.</div>
+                    </div>
+                </div>
+                <div class="roadmap-card">
+                    <span class="roadmap-num">03</span>
+                    <div>
+                        <div class="roadmap-title">KPIs &amp; Performance</div>
+                        <div class="roadmap-desc">قياس الأداء وتحويل النتائج إلى معلومات تساعد على اتخاذ القرار.</div>
+                    </div>
+                </div>
+                <div class="roadmap-card">
+                    <span class="roadmap-num">04</span>
+                    <div>
+                        <div class="roadmap-title">Root Cause Analysis</div>
+                        <div class="roadmap-desc">فهم المشكلة والبحث عن السبب الجذري بدل معالجة الأعراض فقط.</div>
+                    </div>
+                </div>
+                <div class="roadmap-card">
+                    <span class="roadmap-num">05</span>
+                    <div>
+                        <div class="roadmap-title">Nonconformities</div>
+                        <div class="roadmap-desc">فهم حالات عدم المطابقة وكيفية التعامل معها.</div>
+                    </div>
+                </div>
+                <div class="roadmap-card">
+                    <span class="roadmap-num">06</span>
+                    <div>
+                        <div class="roadmap-title">Internal Audit</div>
+                        <div class="roadmap-desc">فهم منهجية التدقيق واستخدامه كأداة للتحقق والتحسين.</div>
+                    </div>
+                </div>
+                <div class="roadmap-card">
+                    <span class="roadmap-num">07</span>
+                    <div>
+                        <div class="roadmap-title">PDCA</div>
+                        <div class="roadmap-desc">استخدام دورة التحسين المستمر لربط التخطيط والتنفيذ والتقييم والتحسين.</div>
+                    </div>
+                </div>
+                <div class="roadmap-card">
+                    <span class="roadmap-num">08</span>
+                    <div>
+                        <div class="roadmap-title">The Unified Six-Framework</div>
+                        <div class="roadmap-desc">ربط المفاهيم السابقة ضمن إطار موحد يساعد على استخدامها بصورة عملية.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="chapter-card" id="intro-how-to-use">
+            <div class="chapter-header">
+                <div class="chapter-title">كيف تستخدم هذا الدليل؟</div>
+            </div>
+            <p class="intro-lead">إذا كنت جديدًا في مجال <span class="lang-en">ISO 9001</span>، فمن الأفضل قراءة المحتوى بالتسلسل، لأن كل جزء يساعد على فهم الجزء الذي يليه.</p>
+            <p class="intro-lead">أما إذا كانت لديك معرفة مسبقة، فيمكن استخدام الملف كـ مرجع سريع للعودة إلى المفاهيم والأدوات العملية عند الحاجة.</p>
+
+            <div class="usage-paths">
+                <div class="usage-path">
+                    <div class="usage-path-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                    </div>
+                    <div class="usage-path-title">مبتدئ</div>
+                    <div class="usage-path-desc">اقرأ الفصول بالتسلسل من البداية للنهاية</div>
+                </div>
+                <div class="usage-path">
+                    <div class="usage-path-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path><polyline points="21 3 21 9 15 9"></polyline></svg>
+                    </div>
+                    <div class="usage-path-title">لديك معرفة مسبقة</div>
+                    <div class="usage-path-desc">استخدمه لمراجعة المفاهيم وترتيبها</div>
+                </div>
+                <div class="usage-path">
+                    <div class="usage-path-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    </div>
+                    <div class="usage-path-title">مهني أو مدقق</div>
+                    <div class="usage-path-desc">استخدمه كمرجع عملي سريع عند الحاجة</div>
+                </div>
+            </div>
+
+            <p class="intro-lead" style="margin-top: 24px;">وفي النهاية، هذا الملخص يمثل محاولة لتقديم ما تعلمته من دورة <span class="lang-en">ISO 9001 Lead Auditor</span> بطريقة أبسط وأكثر عملية، بهدف مشاركة المعرفة والاستفادة منها في بيئات العمل والمشاريع المختلفة.</p>
+        </section>
+
+        <section class="chapter-card" id="ch1">
+            <div class="chapter-header">
+                <div class="chapter-title">الفصل الأول: التفكير المنظومي وهيكلة العمليات <span class="lang-en">Process Approach</span></div>
+            </div>
+            <p class="chapter-intro">النشاط المجرد في الموقع هو مجرد حركة استهلاك للموارد أما "العملية" فهي المنظومة المتكاملة التي تضمن نجاح هذه الحركة واستمرارها دون عيوب تعاقدية أو فنية.</p>
+            
+            <div class="flow-container">
+                <div class="flow-step">المدخلات:OPR+ مواصفة الاستشاري + الميزانية</div>
+                <div class="flow-arrow">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                </div>
+                <div class="flow-step">العملية: تصميم - شراء - تركيب - فحص</div>
+                <div class="flow-arrow">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                </div>
+                <div class="flow-step">المخرج: معدة جاهزة للتشغيل الفعلي</div>
+            </div>
+
+            <h3 style="margin: 24px 0 12px 0; color: var(--primary); font-size: 1.15rem;">جدول التحكم واتخاذ القرار في العمليات الهندسي</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>إذا كان سؤالك التشغيلي...</th>
+                            <th>استخدم المكون المنظومي الآتي...</th>
+                            <th>التطبيق المباشر (مثال بند صب الخرسانة بالموقع)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>ما هي المتطلبات والمستندات الإلزامية للبدء؟</td>
+                            <td><span class="lang-en">Inputs</span> المدخلات</td>
+                            <td>مخططات ورشة معتمدة، تصريح صب موقع، خرسانة من خلاطة معتمدة.</td>
+                        </tr>
+                        <tr>
+                            <td>كيف نضمن السلامة الفنية والقبول أثناء العمل؟</td>
+                            <td><span class="lang-en">Controls</span> الضوابط</td>
+                            <td>اختبار الهبوط <span class="lang-en">Slump</span>، أخذ مكعبات الفحص، حضور الاستشاري.</td>
+                        </tr>
+                        <tr>
+                            <td>ما هي الأدوات والآلات المطلوبة للتنفيذ؟</td>
+                            <td><span class="lang-en">Resources</span> الموارد</td>
+                            <td>مضخة رئيسية، عمالة ماهرة، هزازات ميكانيكية أساسية واحتياطية.</td>
+                        </tr>
+                        <tr>
+                            <td>من يحاسب على نجاح البند أو فشله الفني؟</td>
+                            <td><span class="lang-en">Owner</span> مالك العملية</td>
+                            <td>مهندس الموقع التنفيذي (وليس مهندس الجودة الذي يراقب فقط).</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 style="margin: 32px 0 8px 0; color: var(--primary); font-size: 1.15rem;">العملية لا تعمل وحدها</h3>
+            <p class="chapter-intro" style="margin-bottom: 12px;">العملية لا تعمل بشكل منفصل عن بقية النظام. في الواقع، يكون مخرج عملية معينة غالبًا مدخلًا للعملية التالية، ولذلك فإن أي ضعف أو مشكلة في إحدى العمليات يمكن أن ينتقل ويؤثر على المراحل التي بعدها.</p>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 8px;">مثال في المشاريع الهندسية:</p>
+
+            <div class="process-chain">
+                <div class="process-chain-node">Design</div>
+                <div class="process-chain-link">
+                    <span class="process-chain-tag">Output → Input</span>
+                    <span class="process-chain-artifact">Approved Drawings / Design Output</span>
+                </div>
+                <div class="process-chain-node">Procurement</div>
+                <div class="process-chain-link">
+                    <span class="process-chain-tag">Output → Input</span>
+                    <span class="process-chain-artifact">Approved Materials / Equipment</span>
+                </div>
+                <div class="process-chain-node">Installation</div>
+                <div class="process-chain-link">
+                    <span class="process-chain-tag">Output → Input</span>
+                    <span class="process-chain-artifact">Installed System</span>
+                </div>
+                <div class="process-chain-node">Testing &amp; Commissioning</div>
+                <div class="process-chain-link">
+                    <span class="process-chain-tag">Output → Input</span>
+                    <span class="process-chain-artifact">Verified System</span>
+                </div>
+                <div class="process-chain-node final">Handover</div>
+            </div>
+
+            <h3 style="margin: 36px 0 8px 0; color: var(--primary); font-size: 1.15rem;">كيف تنظر إلى أي عملية؟</h3>
+            <p class="chapter-intro" style="margin-bottom: 8px;">عند تحليل أو تقييم أي عملية، لا تسأل فقط "ماذا نفعل؟"، بل حاول الإجابة عن الأسئلة التالية:</p>
+
+            <div class="process-lens-grid">
+                <div class="process-lens-card">
+                    <div class="process-lens-num">01</div>
+                    <div class="process-lens-question">ما هو هدف العملية؟</div>
+                    <div class="process-lens-desc">ما النتيجة التي يجب أن تحققها؟</div>
+                </div>
+                <div class="process-lens-card">
+                    <div class="process-lens-num">02</div>
+                    <div class="process-lens-question">ما هي المدخلات؟</div>
+                    <div class="process-lens-desc">ما الذي تحتاجه العملية لكي تبدأ؟</div>
+                </div>
+                <div class="process-lens-card">
+                    <div class="process-lens-num">03</div>
+                    <div class="process-lens-question">ما هي الأنشطة الرئيسية؟</div>
+                    <div class="process-lens-desc">ما الخطوات التي يتم تنفيذها؟</div>
+                </div>
+                <div class="process-lens-card">
+                    <div class="process-lens-num">04</div>
+                    <div class="process-lens-question">من المسؤول وما الموارد المطلوبة؟</div>
+                    <div class="process-lens-desc">من يقوم بالعمل؟ وما الذي يحتاجه لتنفيذه؟</div>
+                </div>
+                <div class="process-lens-card">
+                    <div class="process-lens-num">05</div>
+                    <div class="process-lens-question">ما هي المخرجات؟</div>
+                    <div class="process-lens-desc">ما النتيجة أو المنتج الناتج عن العملية؟</div>
+                </div>
+                <div class="process-lens-card">
+                    <div class="process-lens-num">06</div>
+                    <div class="process-lens-question">كيف نعرف أن العملية تعمل بفعالية؟</div>
+                    <div class="process-lens-desc">كيف نقيس الأداء ونتحقق من تحقيق النتيجة المطلوبة؟</div>
+                </div>
+            </div>
+
+            <div class="mistake-box">
+                <h4>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                    <span>أخطاء شائعة</span> <span class="lang-en">Common Mistakes</span>
+                </h4>
+                <ul>
+                    <li>البدء في التنفيذ الميداني بموجب مخططات ورشة غير معتمدة رسمياً لتوفير الوقت ظاهرياً.</li>
+                    <li>تحميل قسم الجودة مسؤولية عيوب التنفيذ (كالتعشيش) الجودة وظيفتها الرقابة والمنع وليس التنفيذ بيدك.</li>
+                </ul>
+            </div>
+
+            <div class="mindset-box">
+                <h4>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                    <span>العقلية الهندسية</span> <span class="lang-en">Engineering Mindset</span>
+                </h4>
+                <p style="margin-bottom: 8px; font-weight: 500;">بعد نهاية كل بند أو عملية، اسأل نفسك فوراً:</p>
+                <ol>
+                    <li>هل أعرف أين وبماذا أقيس كفاءة هذه العملية الآن؟</li>
+                    <li>هل تم تحديد مالك ومسؤول حقيقي ومحاسب عنها في الموقع؟</li>
+                    <li>هل أملك آلية واضحة تضمن اكتشاف فشل البند مبكراً قبل فوات الأوان؟</li>
+                </ol>
+            </div>
+        </section>
+
+        <section class="chapter-card" id="ch2">
+            <div class="chapter-header">
+                <div class="chapter-title">الفصل الثاني: التفكير المبني على المخاطر <span class="lang-en">Risk-Based Thinking</span></div>
+            </div>
+            <p class="chapter-intro">خطة الطوارئ <span class="lang-en">Contingency</span> هي مجرد رد فعل متأخر لإطفاء حريق وقع بالفعل. التفكير المبني على المخاطر يعلمك التحرك الاستباقي لمنع اشتعال الحريق من الأساس.</p>
+
+            <h3 style="margin: 24px 0 12px 0; color: var(--primary); font-size: 1.15rem;">مصفوفة القرار الفوري للتعامل مع المخاطر الهندسية</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>طبيعة الخطر الهندسي بالموقع</th>
+                            <th>القرار الإداري الأنسب</th>
+                            <th>مثال موقع ملموس وتطبيقه الفعلي</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>الخطر يدمر مخرج المشروع ولا يمكن تعويضه مالياً</td>
+                            <td>تجنب الخطر <span class="lang-en">Avoid</span></td>
+                            <td>إلغاء بند خطير غير إلزامي أو تغيير مسار شبكة يمر بمنطقة انهيارات.</td>
+                        </tr>
+                        <tr>
+                            <td>الخطر خارجي ويمكن تحميل تكلفته لجهة أخرى تعاقدياً</td>
+                            <td>نقل الخطر <span class="lang-en">Transfer</span></td>
+                            <td>تأمين مالي شامل على المعدات الحساسة ضد كوارث الطقس والأمطار.</td>
+                        </tr>
+                        <tr>
+                            <td>الخطر حتمي وضمن نطاق العمل ولا يمكن إلغاؤه</td>
+                            <td>تقليل الخطر <span class="lang-en">Reduce</span></td>
+                            <td>شراء لوحات الجهد المنخفض مبكراً ومتابعة المصنع أسبوعياً لتفادي أزمات الشحن.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mistake-box">
+                <h4>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                    <span>أخطاء شائعة</span> <span class="lang-en">Common Mistakes</span>
+                </h4>
+                <ul>
+                    <li>خلط مفهوم الخطر المحتمل <span class="lang-en">Risk</span> بالمشكلة الواقعة فعلياً <span class="lang-en">Issue</span>.</li>
+                    <li>تحويل سجل المخاطر إلى وثيقة ورقية ميتة ومخزنة، بدلاف من استخدامها كأداة نقاش في الاجتماع الأسبوعي.</li>
+                </ul>
+            </div>
+
+            <div class="mindset-box">
+                <h4>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                    <span>العقلية الهندسية</span> <span class="lang-en">Engineering Mindset</span>
+                </h4>
+                <ol>
+                    <li>هل الإجراء الذي اتخذته اليوم يمنع حدوث المشكلة مستقبلاً أم يعالج عرضها الحالي فقط؟</li>
+                    <li>هل حددنا كلفة تقليل الخطر مقارنة بحجم الخسارة المالية الحقيقية لو وقع؟</li>
+                </ol>
+            </div>
+        </section>
+
+        <section class="chapter-card" id="ch3">
+            <div class="chapter-header">
+                <div class="chapter-title">الفصل الثالث: مؤشرات الأداء والرقابة الحقيقية <span class="lang-en">KPIs & Monitoring</span></div>
+            </div>
+            <p class="chapter-intro">النشاط يخبرك بما فعلته واستهلكته من وقت وموارد، أما مؤشر الأداء الحقيقي <span class="lang-en">KPI</span> فيخبرك بمدى كفاءة ما حققته وجدواه الاقتصادية والفنية.</p>
+
+            <h3 style="margin: 24px 0 12px 0; color: var(--primary); font-size: 1.15rem;">دليل اتخاذ القرار واختيار المؤشرات الذكية</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>إذا كان سؤالك الإداري...</th>
+                            <th>استخدم هذا النوع من المؤشرات...</th>
+                            <th>التطبيق العملي والمثال بالموقع</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>كيف أتوقع الأزمات وأمنع وقوع الكارثة مستقبلاً؟</td>
+                            <td>مؤشر استباقي <span class="lang-en">Leading KPI</span></td>
+                            <td>نسبة إنجاز جدول الصيانة الوقائية للمعدات الحرجة قبل تشغيلها.</td>
+                        </tr>
+                        <tr>
+                            <td>كيف أقيس النتائج الفعلية والخسائر بعد التنفيذ؟</td>
+                            <td>مؤشر تراجعي <span class="lang-en">Lagging KPI</span></td>
+                            <td>معدل أوامر عدم المطابقة <span class="lang-en">NCRs</span> المفتوحة، أو نسبة إعادة العمل.</td>
+                        </tr>
+                        <tr>
+                            <td>كيف أقيس كفاءة التنفيذ والقبول الفني؟</td>
+                            <td>النجاح من المرة الأولى <span class="lang-en">FPY</span></td>
+                            <td>نسبة بنود الحديد التي استلمها الاستشاري فوراً دون طلب تعديل وإعادة عمل.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mistake-box">
+                <h4>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                    <span>أخطاء شائعة</span> <span class="lang-en">Common Mistakes</span>
+                </h4>
+                <ul>
+                    <li>التركيز على قياس كميات الإنتاج المجردة مثل أمتار الحفر اليومية وإغفال قياس جودة ونظافة التنفيذ.</li>
+                    <li>جمع كميات ضخمة من البيانات والمؤشرات دون استخدامها فعلياً في اتخاذ أي قرار تصحيحي.</li>
+                </ul>
+            </div>
+
+            <div class="mindset-box">
+                <h4>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                    <span>العقلية الهندسية</span> <span class="lang-en">Engineering Mindset</span>
+                </h4>
+                <p style="margin-bottom: 8px; font-weight: 500;">قبل اعتماد أي تقرير مؤشرات اطرح هذا السؤال:</p>
+                <ol>
+                    <li>لو هبط هذا المؤشر بنسبة 15% غداً، ما هو القرار الهندسي المالي الفوري الذي سأتخذه لإنقاذ المشروع؟</li>
+                </ol>
+            </div>
+        </section>
+
+        <section class="chapter-card" id="ch4">
+            <div class="chapter-header">
+                <div class="chapter-title">الفصل الرابع: تحليل الأسباب الجذرية <span class="lang-en">Root Cause Analysis - RCA</span></div>
+            </div>
+            <p class="chapter-intro">تكسير خرسانة معيبة أو إعادة لحام أنبوب فاشل هو علاج مؤقت ومكلف للعرض الظاهر التحليل الجذري يحفر خلف المشكلة لاقتلاع فجوة المنظومة التي سمحت بحدوث هذا الفشل من الأساس.</p>
+
+            <h3 style="margin: 24px 0 12px 0; color: var(--primary); font-size: 1.15rem;">دليل اختيار أداة التقصي الفني المناسبة للموقع</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>طبيعة وحجم المشكلة الفنية بالموقع</th>
+                            <th>الأداة الهندسية المناسبة</th>
+                            <th>طريقة التطبيق والتنفيذ الفوري</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>مشكلة خطية مباشرة، ومحددة الأبعاد (تأخر شحنة محددة)</td>
+                            <td>تقنية الأسئلة الخمسة <span class="lang-en">5 Whys</span></td>
+                            <td>تسلسل بالأسئلة التتابعية "لماذا" حتى نصل لأصل الفجوة التنظيمية في الإدارة.</td>
+                        </tr>
+                        <tr>
+                            <td>مشكلة معقدة، متشعبة، ولها احتمالات فنية متعددة ومتكررة</td>
+                            <td>مخطط عظمة السمكة <span class="lang-en">Fishbone</span></td>
+                            <td>توزيع احتمالات الفشل على الفئات الست (البشر، الآلات، المواد، البيئة، الطريقة، القياس).</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mistake-box">
+                <h4>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                    <span>أخطاء شائعة</span> <span class="lang-en">Common Mistakes</span>
+                </h4>
+                <ul>
+                    <li>التوقف عند لوم العامل أو المهندس (مثل: الموظف نسى تشغيل المياه) وإغفال غياب نظام الحماية الآلي أو خطة الفحص.</li>
+                    <li>القفز السريع لإصلاح العيب الظاهري بالموقع دون فتح ملف تحقيق فني حقيقي يمنع التكرار.</li>
+                </ul>
+            </div>
+
+            <div class="mindset-box">
+                <h4>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                    <span>العقلية الهندسية</span> <span class="lang-en">Engineering Mindset</span>
+                </h4>
+                <ol>
+                    <li>هل وصلنا في تحليلنا إلى خطوة تتيح لنا تعديل آلية أو قانون العمل داخل الشركة؟</li>
+                    <li>هل أصلحنا النظام الإداري أم اكتفينا بمعاقبة الشخص ولوم الظروف الجوية؟</li>
+                </ol>
+            </div>
+        </section>
+
+        <section class="chapter-card" id="ch5">
+            <div class="chapter-header">
+                <div class="chapter-title">الفصل الخامس: حالات عدم المطابقة والإجراءات التصحيحية <span class="lang-en">NCRs</span></div>
+            </div>
+            <p class="chapter-intro">أمر عدم المطابقة <span class="lang-en">NCR</span> ليس عقوبة إدارية لتعطيل أعمالك، بل هو خط دفاع فني وقانوني يحمي منشآت الشركة وأرباحها من كوارث مستقبلية خفية.</p>
+
+            <h3 style="margin: 24px 0 8px 0; color: var(--primary); font-size: 1.15rem;">كيف تكتب <span class="lang-en">Nonconformity</span> بشكل صحيح؟</h3>
+            <p class="chapter-intro" style="margin-bottom: 8px;">عند تحديد حالة عدم مطابقة، يجب أن تكون الصياغة مبنية على ثلاثة عناصر رئيسية، أي أن حالة عدم المطابقة لا يجب أن تكون رأيًا أو افتراضًا، بل مبنية على مقارنة واضحة بين ما هو مطلوب مقابل ما تم العثور عليه فعليًا:</p>
+
+            <div class="ncr-framework">
+                <div class="ncr-step">
+                    <div class="ncr-step-track">
+                        <div class="ncr-step-marker">1</div>
+                        <div class="ncr-step-line"></div>
+                    </div>
+                    <div class="ncr-step-content">
+                        <div class="ncr-step-title">Requirement <span style="font-weight:400; color: var(--text-muted); font-size: 0.85rem;">— المتطلب</span></div>
+                        <div class="ncr-step-desc">ما هو المتطلب الذي يجب تحقيقه؟</div>
+                    </div>
+                </div>
+                <div class="ncr-step">
+                    <div class="ncr-step-track">
+                        <div class="ncr-step-marker">2</div>
+                        <div class="ncr-step-line"></div>
+                    </div>
+                    <div class="ncr-step-content">
+                        <div class="ncr-step-title">Objective Evidence <span style="font-weight:400; color: var(--text-muted); font-size: 0.85rem;">— الدليل الموضوعي</span></div>
+                        <div class="ncr-step-desc">ماذا وجدت فعليًا أثناء المراجعة أو التدقيق؟</div>
+                    </div>
+                </div>
+                <div class="ncr-step">
+                    <div class="ncr-step-track">
+                        <div class="ncr-step-marker">3</div>
+                    </div>
+                    <div class="ncr-step-content">
+                        <div class="ncr-step-title">Nonconformity <span style="font-weight:400; color: var(--text-muted); font-size: 0.85rem;">— عدم المطابقة</span></div>
+                        <div class="ncr-step-desc">أين يقع عدم التطابق بين المتطلب والواقع؟</div>
+                    </div>
+                </div>
+            </div>
+
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 8px;">مثال مبسط:</p>
+            <div class="ncr-example">
+                <div class="ncr-example-card req">
+                    <div class="ncr-example-label">Requirement</div>
+                    <div class="ncr-example-text">يجب أن يتم حفظ سجلات الاختبارات طبقًا للإجراء المعتمد.</div>
+                </div>
+                <div class="ncr-example-card evi">
+                    <div class="ncr-example-label">Objective Evidence</div>
+                    <div class="ncr-example-text">أثناء مراجعة سجلات الاختبارات، لم يتم العثور على سجل الاختبار الخاص بالمعدة المحددة.</div>
+                </div>
+                <div class="ncr-example-card non">
+                    <div class="ncr-example-label">Nonconformity</div>
+                    <div class="ncr-example-text">لم يتم الاحتفاظ بسجل الاختبار المطلوب وفقًا للإجراء المعتمد.</div>
+                </div>
+            </div>
+
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 4px;">عند كتابة <span class="lang-en">Nonconformity</span> يجب أن تكون:</p>
+            <div class="ncr-quality-badges">
+                <span class="ncr-badge"><span class="lang-en">Factual</span> — مبنية على حقائق</span>
+                <span class="ncr-badge"><span class="lang-en">Accurate</span> — دقيقة</span>
+                <span class="ncr-badge"><span class="lang-en">Complete</span> — مكتملة</span>
+                <span class="ncr-badge"><span class="lang-en">Brief</span> — مختصرة وواضحة</span>
+            </div>
+
+            <h3 style="margin: 32px 0 12px 0; color: var(--primary); font-size: 1.15rem;">مصفوفة التفريق الحاسم بين معالجة العَرَض ومعالجة المنظومة</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>إذا كان هدفك الفوري...</th>
+                            <th>استخدم هذا الإجراء...</th>
+                            <th>المثال التطبيقي (اكتشاف تعشيش خرساني في عمود)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>إغلاق الملاحظة الحالية وإرضاء الاستشاري فوراً وتمرير البند للمستخلص</td>
+                            <td>الإصلاح الفوري <span class="lang-en">Correction</span></td>
+                            <td>تزريق العمود ومعالجة الفجوات الظاهرة بالمواد الإيبوكسية المعتمدة فحصاً.</td>
+                        </tr>
+                        <tr>
+                            <td>ضمان عدم ظهور أي تعشيش خرساني في كامل أعمدة المشروع القادمة</td>
+                            <td>الإجراء التصحيحي <span class="lang-en">Corrective Action</span></td>
+                            <td>تعديل نسب خلطة الخرسانة، إلزامية استخدام الهزاز، ومنع الصب بدون تصريح موقع.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mistake-box">
+                <h4>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                    <span>أخطاء شائعة</span> <span class="lang-en">Common Mistakes</span>
+                </h4>
+                <ul>
+                    <li>إغلاق الـ <span class="lang-en">NCR</span> صورياً على الورق فقط دون النزول للميدان والتحقق من تطبيق العلاج الفني فعلياً.</li>
+                    <li>إهمال خطوة فحص الفاعلية بعد مرور فترة زمنية، مما يؤدي لتكرار نفس الفشل الفني ونزيف الأموال.</li>
+                </ul>
+            </div>
+
+            <div class="mindset-box">
+                <h4>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                    <span>العقلية الهندسية</span> <span class="lang-en">Engineering Mindset</span>
+                </h4>
+                <p style="margin-bottom: 8px; font-weight: 500;">اسأل نفسك وفريقك بعد تطبيق أي إجراء تصحيحي بـ 60 يوماً:</p>
+                <ol>
+                    <li>هل تكررت نفس المخالفة الفنية في الموقع؟ إذا نعم، فالإجراء فاشل والتحليل السابق كان خاطئاً تماماً ويجب إعادته فوراً.</li>
+                </ol>
+            </div>
+        </section>
+
+        <section class="chapter-card" id="ch6">
+            <div class="chapter-header">
+                <div class="chapter-title">الفصل السادس: التدقيق الداخلي كأداة وقائية استباقية <span class="lang-en">Internal Audit</span></div>
+            </div>
+            <p class="chapter-intro">التدقيق الداخلي هو بروفة فنية منظومية استباقية لاستكشاف الفجوات التعاقدية والتشغيلية وإصلاحها داخلياً، قبل أن يكتشفها العميل أو جهات التفتيش الخارجية وتفرض غرامات ضخمة.</p>
+
+            <h3 style="margin: 24px 0 8px 0; color: var(--primary); font-size: 1.15rem;">ماذا يبحث عنه المدقق فعلًا؟</h3>
+            <p class="chapter-intro" style="margin-bottom: 8px;">عند إجراء التدقيق، لا يقتصر دور المدقق على التحقق من وجود إجراءات أو مستندات فقط. يمكن النظر إلى عملية التدقيق من خلال ثلاثة مستويات رئيسية:</p>
+
+            <div class="audit-depth">
+                <div class="audit-depth-level">
+                    <div class="audit-depth-title">Documentation <span class="lang-en">التوثيق</span></div>
+                    <div class="audit-depth-desc">هل المتطلبات والإجراءات والمعلومات المطلوبة موثقة بشكل مناسب؟</div>
+                </div>
+                <div class="audit-depth-arrow">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+                <div class="audit-depth-level">
+                    <div class="audit-depth-title">Implementation <span class="lang-en">التطبيق</span></div>
+                    <div class="audit-depth-desc">هل ما هو موثق يتم تطبيقه فعليًا في الواقع؟</div>
+                </div>
+                <div class="audit-depth-arrow">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+                <div class="audit-depth-level">
+                    <div class="audit-depth-title">Effectiveness <span class="lang-en">الفعالية</span></div>
+                    <div class="audit-depth-desc">هل العملية تحقق النتائج والأهداف المطلوبة منها؟</div>
+                </div>
+            </div>
+
+            <p class="chapter-intro" style="margin-top: 16px;">بمعنى آخر: وجود الإجراء وحده لا يعني أن العملية فعالة. قد يكون الإجراء موثقًا بشكل ممتاز، وقد يتم تطبيقه، ولكن إذا كانت العملية لا تحقق النتائج المطلوبة، فهنا يجب تقييم مدى فعاليتها.</p>
+
+            <h3 style="margin: 32px 0 12px 0; color: var(--primary); font-size: 1.15rem;">مصفوفة الفروقات التشغيلية الحاسمة بالموقع</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>إذا كان محور تركيز الفحص هو...</th>
+                            <th>استخدم الأداة الآتية...</th>
+                            <th>طبيعة السؤال الموجه وفلسفته</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>سلامة وثبات كفاءة النظام العمليات وتدفق الوثائق المعتمدة <span class="lang-en">System</span></td>
+                            <td>التدقيق الداخلي <span class="lang-en">Audit</span></td>
+                            <td>"هل آلية اعتمادات مخططات الورشة تضمن فحص ومتابعة ملاحظات الاستشاري بانتظام؟"</td>
+                        </tr>
+                        <tr>
+                            <td>سلامة ومطابقة القطعة أو البند المادي الملموس حالياً بالموقع <span class="lang-en">Product</span></td>
+                            <td>التفتيش اليومي <span class="lang-en">Inspection</span></td>
+                            <td>"هل حديد التسليح والمقاسات في هذه القاعدة مطابقة للمخطط المعتمد والنسخة الأحدث؟"</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mistake-box">
+                <h4>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                    <span>أخطاء شائعة</span> <span class="lang-en">Common Mistakes</span>
+                </h4>
+                <ul>
+                    <li>اعتبار المدقق الداخلي شرطياً يبحث عن صيد الأخطاء الشخصية، بدلاً من التعامل معه كمستشار لتطوير المنظومة.</li>
+                    <li>الاعتماد على الوعود الشفهية والكلام المرسل أثناء الفحص. القاعدة الصارمة: "إذا لم يكن موثقاً ورقمياً، فهو لم يحدث مطلقاً".</li>
+                </ul>
+            </div>
+
+            <div class="mindset-box">
+                <h4>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                    <span>العقلية الهندسية</span> <span class="lang-en">Engineering Mindset</span>
+                </h4>
+                <ol>
+                    <li>كيف نثبت للمدقق الخارجي أو الاستشاري أننا نتحكم في أحدث نسخ المخططات العاملة بالميدان الآن دون لبس؟</li>
+                </ol>
+            </div>
+        </section>
+
+        <section class="chapter-card" id="ch7">
+            <div class="chapter-header">
+                <div class="chapter-title">الفصل السابع: دورة التحسين المستمر والترس الإداري <span class="lang-en">PDCA Cycle</span></div>
+            </div>
+            <p class="chapter-intro">دورة <span class="lang-en">PDCA</span> هي الترس الحركي الذي يمنع انزلاق مشروعك للخلف أو تكرار خسائره الفنية والمالية، عبر ربط كافة العمليات في حلقة رباعية لا تتوقف.</p>
+
+            <div class="flow-container">
+                <div class="flow-step">PLAN: خطط للمؤشرات والمخاطر</div>
+                <div class="flow-arrow">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                </div>
+                <div class="flow-step">DO: نفذ بدقة في الموقع</div>
+                <div class="flow-arrow">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                </div>
+                <div class="flow-step">CHECK: راقب وافحص الفجوات</div>
+                <div class="flow-arrow">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                </div>
+                <div class="flow-step">ACT: صحح المنظومة وثبت النجاح</div>
+            </div>
+
+            <h3 style="margin: 24px 0 12px 0; color: var(--primary); font-size: 1.15rem;">دليل التطبيق الهندسي لحل أزمة "تكرار رفض استلام حديد التسليح"</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>مرحلة الترس</th>
+                            <th>الخطوة التنفيذية المباشرة في المشروع</th>
+                            <th>لسان حال المهندس الخبير المحترف 💬</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>PLAN (خطط)</strong></td>
+                            <td>إنشاء قائمة فحص مسبق داخلية <span class="lang-en">Pre-Checklist</span> يوقع عليها مهندس الموقع إلزامياً.</td>
+                            <td>"سنضع آلية جودة تضمن منع الاستشاري من رصد أي خطأ مكشوف."</td>
+                        </tr>
+                        <tr>
+                            <td><strong>DO (نفذ)</strong></td>
+                            <td>تطبيق واختبار القائمة الجديدة في منطقة محددة <span class="lang-en">Pilot Zone</span> لمدة أسبوعين.</td>
+                            <td>"سنختبر كفاءة الآلية هندسياً على نطاق ضيق ومسيطر عليه أولاً."</td>
+                        </tr>
+                        <tr>
+                            <td><strong>CHECK (افحص)</strong></td>
+                            <td>مراقبة مؤشر القبول من المرة الأولى: هل ارتفعت النسبة وتقلصت الملاحظات؟</td>
+                            <td>"هل نجحت الخطة الجديدة فعلياً في تقليص أوامر الرفض وهدر الوقت؟"</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ACT (صحح)</strong></td>
+                            <td>تعميم القائمة كمعيار ثابت وإجراء إلزامي لكامل المشروع وتحديث المواصفة.</td>
+                            <td>"الآن نجحنا، دعونا نثبت هذا المعيار كقانون صارم لحماية الموقع."</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="chapter-card" id="ch8">
+            <div class="chapter-header">
+                <div class="chapter-title">الفصل الثامن: الإطار السداسي الموحد للتحكم في أي مشروع هندسي</div>
+            </div>
+            <p class="chapter-intro">يمنحك هذا الإطار النظرة المنظومية الشاملة لإدارة وقيادة أي مشروع هندسي أو إنشائي بنجاح حتمي، بغض النظر عن تخصصك الفني الدقيق أو تعقيد البنود:</p>
+            
+            <div class="flow-container" style="background-color: #f1f5f9;">
+                <div class="flow-step">1. افهم العملية</div>
+                <div class="flow-arrow">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                </div>
+                <div class="flow-step">2. توقع المخاطر</div>
+                <div class="flow-arrow">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                </div>
+                <div class="flow-step">3. حدد الـ KPIs</div>
+                <div class="flow-arrow">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                </div>
+                <div class="flow-step">4. راقب الانحرافات</div>
+                <div class="flow-arrow">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                </div>
+                <div class="flow-step">5. حلل الجذر</div>
+                <div class="flow-arrow">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                </div>
+                <div class="flow-step">6. طور المنظومة وأغلق الدورة</div>
+            </div>
+
+            <div class="mindset-box" style="background-color: #fffaf0; border-right: 5px solid var(--accent-gold);">
+                <h4 style="color: #92400e;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                    <span>الأسئلة الثلاثة الذهبية للحركة اليومية بالموقع</span>
+                </h4>
+                <p style="margin-bottom: 8px; color: #78350f;">قبل توقيع أي قرار أو بدء أي بند تشغيلي، وجه لنفسك وفريقك هذه الأسئلة بالتتابع الصارم:</p>
+                <ol>
+                    <li style="color: #78350f;"><strong>هل أفهم العملية (<span class="lang-en">Process</span>) بالكامل؟</strong> (إذا الإجابة لا توقف فوراً فالتنفيذ هنا انتحار هندسي وتدمير للموارد).</li>
+                    <li style="color: #78350f;"><strong>هل العملية تحت السيطرة والتحكم الصارم (<span class="lang-en">Under Control</span>)؟</strong> (نتأكد عبر لغة الأرقام والمؤشرات وليس الانطباع العاطفي الشخصي).</li>
+                    <li style="color: #78350f;"><strong>هل يمكن تحسين هذه العملية وتطوير كفاءتها المادية والزمنية (<span class="lang-en">Can be Improved</span>)؟</strong> (إذا نعم، أطلق ترس التحسين فوراً).</li>
+                </ol>
+            </div>
+        </section>
+
+        <section class="chapter-card" id="appendices">
+            <div class="chapter-header">
+                <div class="chapter-title">الملاحق التطبيقية وأدوات الجيب المرجعية</div>
+            </div>
+            
+            <div class="appendix-section">
+                <h3>الملحق أ: معجم المفاهيم والعقلية الهندسية في سطر واحد</h3>
+                <ul style="padding-right: 24px;">
+                    <li style="margin-bottom: 6px;"><strong>العملية (<span class="lang-en">Process</span>):</strong> السيستم والمنظومة التي تضمن جودة المخرجات وكفاءتها المستدامة تكراراً.</li>
+                    <li style="margin-bottom: 6px;"><strong>الخطر (<span class="lang-en">Risk</span>):</strong> مشكلة محتملة الوقوع مستقبلاً نتحرك لمنعها وحماية المشروع الآن استباقياً.</li>
+                    <li style="margin-bottom: 6px;"><strong>مؤشر الأداء حقيقي (<span class="lang-en">KPI</span>):</strong> رقم ذكي يقيس كفاءة المنظومة ونجاحها وليس كمية الإنتاج المعزولة.</li>
+                    <li style="margin-bottom: 6px;"><strong>الإجراء التصحيحي (<span class="lang-en">Corrective Action</span>):</strong> تعديل آلية وقوانين النظام لضمان عدم تكرار الخطأ الفني نهائياً.</li>
+                </ul>
+            </div>
+
+            <div class="appendix-section">
+                <h3>الملحق ب: دليل الفروقات الحاسمة لاتخاذ القرار الهندسي</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>إذا كان سؤالك المحوري...</th>
+                                <th>استخدم الأداة الفنية الآتية...</th>
+                                <th>التطبيق الهندسي والمثال بالموقع</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>هل نفذنا وركبنا البند بدقة حسب المخطط والمواصفة النظرية المكتوبة؟</td>
+                                <td>التحقق والمطابقة <span class="lang-en">Verification</span></td>
+                                <td>فحص أبعاد، مسارات، ومواد عزل أنابيب التكييف بالموقع ومطابقتها بالورق.</td>
+                            </tr>
+                            <tr>
+                                <td>هل يشتغل النظام بكفاءة ويؤدي غرضه الحقيقي في البيئة التشغيلية؟</td>
+                                <td>الاعتماد والتحقق العملي <span class="lang-en">Validation</span></td>
+                                <td>تشغيل نظام التكييف كاملاً وقت الظهيرة وقياس استقرار وتوزيع الحرارة الفعلي.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="appendix-section">
+                <h3>الملحق ج: دراسة حالة مدمجة - أزمة لوحة جهد منخفض (<span class="lang-en">Case Study</span>)</h3>
+                <p style="margin-bottom: 12px;"><strong>الأزمة:</strong> تأخر توريد لوحات الجهد المنخفض بمشروع مبنى إداري، مما هدد بإيقاف التشطيبات وتأخر صرف المستخلص المالي الرئيسي.</p>
+                <p style="margin-bottom: 12px;"><strong>تطبيق الإطار السداسي الحاد:</strong> رسم مدير المشروع مسار العملية، وتبين من لوحة التحكم هبوط مؤشر التوريد في وقته إلى 60%. تم إجراء تحليل السبب الجذري فوراً، وتبين أن التأخر ليس من المصنع الخارجي، بل لأن اعتماد مخططات الورشة استغرق شهرين كاملين مع الاستشاري لعدم وجود مسؤول يتابع ويغلق الملاحظات الفنية أسبوعياً.</p>
+                <p><strong>القرار الهندسي المطبق:</strong> تم عمل إصلاح فوري <span class="lang-en">Correction</span> بعقد اجتماع طارئ واعتماد المخطط يدوياً وتمريره للمصنع. وتبعه فوراً إجراء تصحيحي جذري <span class="lang-en">Corrective Action</span> بتعيين مهندس تنسيق مسؤول حصرياً عن الاعتمادات الفنية مع وضع حد أقصى (7 أيام) لملاحقة وإغلاق أي ملاحظة يطرحها الاستشاري لمنع النوم في العسل. بعد 3 أشهر، تمت مراجعة الأداء وتبين انخفاض مدة اعتمادات كافة المعدات الأخرى إلى 9 أيام فقط، مما أثبت فاعلية المنظومة وتثبيتها كقانون عام للشركة.</p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const toggleSidebar = document.getElementById('toggleSidebar');
+        const sidebar = document.getElementById('sidebar');
+        const menuLinks = document.querySelectorAll('.menu-link');
+        const sections = document.querySelectorAll('.chapter-card');
+        const searchInput = document.getElementById('searchInput');
+
+        // Sidebar Responsive Trigger
+        toggleSidebar.addEventListener('click', (e) => {
+            sidebar.classList.toggle('open');
+            e.stopPropagation();
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!sidebar.contains(e.target) && sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        // Close sidebar immediately on mobile menu link click
+        menuLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+            });
+        });
+
+        // Precise Dynamic Scroll Highlighting
+        window.addEventListener('scroll', () => {
+            let current = '';
+            const scrollPos = window.pageYOffset || document.documentElement.scrollTop;
+
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollPos >= sectionTop - 140) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            menuLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').includes(current)) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // Instant Dashboard Search Filter Engine
+        searchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase().trim();
+            
+            sections.forEach(section => {
+                const innerText = section.textContent.toLowerCase();
+                if (innerText.includes(query)) {
+                    section.classList.remove('hidden-item');
+                } else {
+                    section.classList.add('hidden-item');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
